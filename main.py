@@ -7,16 +7,16 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 
 
-@app.route("/", methods=['GET'])
+@app.route("/register", methods=['GET'])
 def register_page():
-    return render_template("signup.html", username="", usernameError="", password="", passwordError="", password2="", password2Error="", email="", emailError="")
+    return render_template("signup.html")
 
-@app.route("/", methods=['POST'])
+@app.route("/register", methods=['POST'])
 def register():
-    username = request.form['username']
-    password = request.form['password']
-    password2 = request.form['password2']
-    email = request.form['email']
+    username = cgi.escape(request.form['username'])
+    password = cgi.escape(request.form['password'])
+    password2 = cgi.escape(request.form['password2'])
+    email = cgi.escape(request.form['email'])
 
     username_error = ""
     password_error = ""
@@ -28,36 +28,33 @@ def register():
     if not password:
         password_error = "Please enter a password."
     elif len(password) < 3:
-        password_error = "Password should be at least 3 characters."
-    else:
-        contains_number = False
-        for char in password:
-            if char.isdigit():
-                contains_number = True
-        if not contains_number:
-            password_error = "Enter a number in the password."
+        password_error = "Password should be between 3 and 20 characters."
+    elif len(password) > 20:
+        password_error = "Password should be between 3 and 20 characters."
+   # else:
+       # contains_number = False
+       # for char in password:
+          #  if char.isdigit():
+          #      contains_number = True
+        #if not contains_number:
+         #   password_error = "Enter a number in the password."
     if password2 != password:
         password2_error = "Please match this password with the first one."
 
-    #email_to_verify = "jenfor555@aol.com"
+
     match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', email)
     if match == None:
         email_error = "Please enter a valid email."
-    elif len(email) < 3:
-        email_error = "Your email should contain no spaces and consist of more than 3 characters and less than 20 characters."
-
-    #if not email:
-        #email_error = "Please enter a valid email"
+   # elif len(email) < 3:
+    #    email_error = "Your email should contain no spaces and consist of more than 3 characters and less than 20 characters."
 
     if username_error or password_error or password2_error or email_error:
         return render_template("signup.html", username=username, usernameError=username_error, password=password, passwordError=password_error, password2=password2, password2Error=password2_error, email=email, emailError=email_error)
-    
-    if not username_error and not password_error and not password2_error:
-        title = "Welcome, " + username
-        return render_template("signup.html", title=title)
+
+    return 'Welcome, ' + username 
 
 @app.route("/")
 def index():
-    return render_template('signup.html', title="User Signup")
+    return render_template('signup.html')
 
 app.run()
